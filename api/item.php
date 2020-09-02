@@ -4,11 +4,11 @@
         session_start();
     }
 
-    require_once 'api.php';
+    $dir = dirname(dirname(__FILE__));
+    require_once( $dir . '../api/api.php');
     
     if (empty($selectingDatabase)) {
-        $thisDir = dirname(__FILE__);
-        require_once( dirname($thisDir) . '/db_operations/db_connection.php');
+        require_once( $dir . '../db_operations/db_connection.php');
     }
 
     class ItemController extends API

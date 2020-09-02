@@ -2,19 +2,19 @@
     ob_start();
     try {
 
-        include ".env.php";
+        include "../.env.php";
 
         ini_set("display_errors", $env==='development');
         ini_set("error_log", "php_errors.log");
 
-        require "api/api.php";
+        require "../api/api.php";
 
         if(empty($_REQUEST['request'])) {
             return API::response("Hello API!");
         }
 
-        require "api/user.php";
-        require "api/item.php";
+        require "../api/user.php";
+        require "../api/item.php";
 
         // Requests from the same server don't have a HTTP_ORIGIN header
         if (!array_key_exists('HTTP_ORIGIN', $_SERVER)) {
