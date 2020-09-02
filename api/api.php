@@ -79,7 +79,7 @@
             if ((int)method_exists($this, $this->endpoint) > 0) {
                 return self::_response($this->{$this->endpoint}($this->args, $this->file));
             }
-            return self::_response("No Endpoint: $this->endpoint", 400);
+            return self::response("No Endpoint: $this->endpoint", 400);
         }
 
         private function _cleanInputs($data) {
@@ -113,6 +113,7 @@
                 410 => 'Gone',   
                 405 => 'Method Not Allowed',
                 500 => 'Internal Server Error',
+                502 => 'Bad Gateway',
             ); 
             return (isset($status[$code]))?$status[$code]:$status[500]; 
         }

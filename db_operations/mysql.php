@@ -1,5 +1,7 @@
 <?php
 
+	require_once(dirname(dirname(__FILE__))."../api/api.php");
+
 	class MySQL {
 
 	   	private $server;
@@ -42,8 +44,24 @@
 	      Connects the system to the given database.
 	   	*/
 	   	function connect() {
-				$this->link = mysqli_connect($this->server, $this->username, $this->password);
-				$this->link or die(mysqli_error($this->link));
+				ob_start();
+				try {
+					$this->link = mysqli_connect($this->server, $this->username, $this->password);
+					if (ob_get_length()==0 && !$this->link) {
+						$error = mysqli_error($this->link);
+						if (!$error) {
+							API::response("Não foi possível conectar no banco de dados!", 502);
+						}
+						API::response("A conexão do banco de dados falhou: ", trim(strip_tags($error)), 500);
+					}
+				}
+				catch (Exception $e) {
+					API::response($e->getMessage(), 500);
+				}
+				$displayError = trim(strip_tags(ob_get_clean()));
+				if ($displayError) {
+					API::response("erro ao conectar no banco de dados:/n".$displayError, 500);
+				}
 	   	}
 
 	   	function selectDB($dbName=null, $die=true) {
@@ -52,7 +70,7 @@
 				$ok or $die 
 					//&& die("Database does not exist.<br>Please run the setup_database.php script or create_dabatabse.php script or create the database manually.<br />"
 					//	. mysqli_error($this->link));
-					&& API::response("Database does not exist.<br>Please run the setup_database.php script or create_dabatabse.php script or create the database manually.<br />",500);
+					&& API::response(strip_tags("Database does not exist. Please run the setup_database.php script or create_dabatabse.php script or create the database manually."),500);
 				return $ok;
 	   	}
 
@@ -62,6 +80,9 @@
 			}
 
 			function numRows() {
+				if (!$this->queryResult) {
+					return false;
+				}
 				return mysqli_num_rows($this->queryResult);
 			}
 
@@ -74,6 +95,9 @@
 			}
 
 			function fetchArray() {
+				if (!$this->queryResult) {
+					return false;
+				}
 				return mysqli_fetch_array($this->queryResult);
 			}
 	}

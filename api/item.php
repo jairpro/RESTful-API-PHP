@@ -20,7 +20,7 @@
          protected function item($args, $file) {
 
             if(!isset($_SESSION['user_id'])) {
-                return "User not Authenticated! You must be logged in to view this resource.";
+                return self::response("User not Authenticated! You must be logged in to view this resource.",401);
             }
 
             if ($this->method == 'GET') {
@@ -35,8 +35,9 @@
 
                     $itemExists = DB::$connect->numRows();
 
-                    if($itemExists < 1)
+                    if($itemExists < 1) {
                         return self::response("No item found with id: " . $args[0], 404);
+                    }
 
                     while ($row = DB::$connect->fetchArray()) 
                     {
@@ -45,7 +46,7 @@
                         $new_array['price'] = $row['price'];
                     }
 
-                    return $new_array;
+                    return self::response($new_array);
                 }
                 
                 
@@ -63,7 +64,7 @@
                     $new_array[] = $new_registry;
                 }
 
-                return $new_array;
+                return self::response($new_array);
             }
 
             if ($this->method == 'POST') {

@@ -23,8 +23,10 @@
 
 		echo "<br/>User table created!<br/>Inserting admin user now!";
 
-		$username = "admin";
-		$password = "password";
+		require_once(dirname(dirname(__FILE__))."../.env.php");
+
+		$username = $adminName;
+		$password = $adminPassword;
 
 		$password = sha1($password);
 

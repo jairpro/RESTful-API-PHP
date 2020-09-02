@@ -30,6 +30,8 @@
                     "SELECT * from user where id = '" . $id . "'"
                 );
 
+                $new_array = array();
+
                 while ($row = DB::$connect->fetchArray()) 
                 {
                     //$new_array[$row['id']]['id'] = $row['id'];
@@ -38,6 +40,10 @@
                     $new_array['username'] = $row['username'];
                 }
                 
+                if (empty($new_array)) {
+                    return self::response("Failed to get user!", 500);
+                }
+
                 return self::response($new_array);
                 
                 
@@ -87,7 +93,7 @@
                         $_SESSION['user_id'] = $user_id;
 
                         //$this->response(array('ok'=>true, 'message'=>"Successful login!"));
-                        return self::response(array('message'=>"Successful login!"));
+                        return self::response("Successful login!");
                     }
                 }
                 

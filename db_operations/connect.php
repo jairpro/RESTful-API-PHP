@@ -2,10 +2,8 @@
 	
 	require_once 'mysql.php';
 
-	$username = "sambhav";
-	$password = "70dBcEMq0oyB0wVP";
-	$hostname = "localhost"; 
-	$db = "sambhav";
+	$thisDir = dirname(__FILE__);
+	require_once( dirname($thisDir) . '../.env.php');
 
 	class DB {
 		static $selectingDatabase = false;
