@@ -1,21 +1,20 @@
 <?php
 	
 	if (empty($connect)) {
-    	require "connect.php";
+    	require_once "connect.php";
 	}
+	//echo json_encode($connect->getLink())."<br>";
 
-	$db = "sambhav";
+	$db = DB::$connect->getDbName();
 
-	if (!mysql_select_db($db)) {
+	if (!DB::$connect->selectDB(null, false)) {
 	
-	    echo("creating database 'sambhav'!<br/>");
-	    mysql_query('CREATE DATABASE '. $db);
+	    echo("creating database '$db'!<br/>");
+	    DB::$connect->query('CREATE DATABASE '. $db);
 	
 	} else {
-		echo("'sambhav' database already exists!<br/>");
+		echo("'$db' database already exists!<br/>");
 	}
 
-	$selectingDatabase = true;
-	$connect->selectDB();
-
-?>
+	DB::$selectingDatabase = true;
+	DB::$connect->selectDB();

@@ -8,7 +8,7 @@
     
     if (empty($selectingDatabase)) {
         $thisDir = dirname(__FILE__);
-        require( dirname($thisDir) . '/db_operations/db_connection.php');
+        require_once( dirname($thisDir) . '/db_operations/db_connection.php');
     }
 
     class ItemController extends API
@@ -29,35 +29,38 @@
 
                     $id = $args[0];
                     
-                    $result = mysql_query(
+                    DB::$connect->query(
                         "SELECT * from item where id = '" . $id . "'"
                     );
 
-                    $itemExists = mysql_num_rows($result);
+                    $itemExists = DB::$connect->numRows();
 
                     if($itemExists < 1)
-                        return "No item found with id: " . $args[0];
+                        return self::response("No item found with id: " . $args[0], 404);
 
-                    while ($row = mysql_fetch_array($result)) 
+                    while ($row = DB::$connect->fetchArray()) 
                     {
-                        $new_array[$row['id']]['id'] = $row['id'];
-                        $new_array[$row['id']]['name'] = $row['name'];
-                        $new_array[$row['id']]['price'] = $row['price'];
+                        $new_array['id'] = $row['id'];
+                        $new_array['name'] = $row['name'];
+                        $new_array['price'] = $row['price'];
                     }
 
                     return $new_array;
                 }
                 
                 
-                $result = mysql_query(
+                DB::$connect->query(
                     "SELECT * from item"
                 );
 
-                while ($row = mysql_fetch_array($result)) 
+                $new_array = array();
+                while ($row = DB::$connect->fetchArray()) 
                 {
-                    $new_array[$row['id']]['id'] = $row['id'];
-                    $new_array[$row['id']]['name'] = $row['name'];
-                    $new_array[$row['id']]['price'] = $row['price'];
+                    $new_registry = array();
+                    $new_registry['id'] = $row['id'];
+                    $new_registry['name'] = $row['name'];
+                    $new_registry['price'] = $row['price'];
+                    $new_array[] = $new_registry;
                 }
 
                 return $new_array;
@@ -70,7 +73,7 @@
                     $data = json_decode(file_get_contents('php://input'), true);
 
                     if (empty($data['name']) || empty($data['price'])) {
-                        return "Name and price of the item to be added are required!";
+                        return self::response("Name and price of the item to be added are required!", 400);
                     }
 
                     $_POST['name'] = $data['name'];
@@ -81,54 +84,66 @@
                 $name = $_POST['name'];
                 $price = $_POST['price'];
 
-                if($price < 0)
-                    return "Price of your item can't be zero or negative! You don't want to sell it for free. Do you?";
+                if($price < 0) {
+                    return self::response("Price of your item can't be zero or negative! You don't want to sell it for free. Do you?", 400);
+                }
 
-                $result = mysql_query(
+                $result = DB::$connect->query(
                     "INSERT INTO item (name, price) VALUES ( '" . $name . "', '"
                          . $price . "')"
                 );
 
-                if(!$result)
-                    return "Error adding item!";
-
-                else
-                    return "Item added successfully!";
-
+                if(!$result) {
+                    return self::response("Error adding item!", 500);
+                }
+                else {
+                    return self::response(array(
+                        'message' => "Item added successfully!",
+                        'data' => array(
+                            'id' => DB::$connect->getInsertId(),
+                            'name' => $name,
+                            'price' => $price
+                        )
+                    ));
+                }
             }
 
             if ($this->method == 'PUT') {
 
                 $data = json_decode($file, true);
 
-                if(empty($data['name']) || empty($data['price']))
-                    return "Name and price of the item to be updated are required!";
-                
+                if(empty($data['name']) || empty($data['price'])) {
+                    return self::response("Name and price of the item to be updated are required!", 400);
+                }
+
                 $name = $data['name'];
                 $price = $data['price'];
 
-                if($price < 0)
-                    return "Price of your item can't be zero or negative! You don't want to sell it for free. Do you?";
+                if($price < 0) {
+                    return self::response("Price of your item can't be zero or negative! You don't want to sell it for free. Do you?", 400);
+                }
 
                 if (sizeof($args) > 0) {
                     
                     $id = $args[0];
 
-                    $result = mysql_query(
+                    $result = DB::$connect->query(
                         "UPDATE item set name = '" . $name . "' , price = '" . 
                         $price . "' where id = '" . $id . "'"
                     );
 
-                    if(!$result)
-                        return "Error updating item!";
-                    else if(mysql_affected_rows() < 1)
-                        return "No item updated, possibly item not found with id: " . $id . "!";
-                    else
-                        return "Item updated successfully!";
-
+                    if(!$result) {
+                        return self::response("Error updating item!", 500);
+                    }
+                    else if(DB::$connect->getAffectedRows() < 1) {
+                        return self::response("No item updated, possibly item not found with id: " . $id . "!", 404);
+                    }
+                    else {
+                        return self::response("Item updated successfully!");
+                    }
                 }
 
-                return "'id' of the item to be updated is required. Add it to the end of url";
+                return self::response("'id' of the item to be updated is required. Add it to the end of url", 400);
             }
 
             if ($this->method == 'DELETE') {
@@ -136,19 +151,22 @@
                 if (sizeof($args) > 0) {
                     $id = $args[0];
 
-                    $result = mysql_query(
+                    $result = DB::$connect->query(
                         "DELETE from item where id = '" . $id . "'"
                     );
 
-                    if(!$result)
-                        return "Error deleting item!";
-                    else if(mysql_affected_rows() < 1)
-                        return "No item deleted, possibly item not found with id: " . $id . "!";
-                    else
-                        return "Item deleted successfully!";
+                    if(!$result) {
+                        return self::response("Error deleting item!", 500);
+                    }
+                    else if(DB::$connect->getAffectedRows() < 1) {
+                        return self::response("No item deleted, possibly item not found with id: " . $id . "!", 404);
+                    }
+                    else {
+                        return self::response("Item deleted successfully!");
+                    }
                 }
 
-                return "'id' of the item to be deleted is required. Add it to the end of url";
+                return self::response("'id' of the item to be deleted is required. Add it to the end of url", 400);
             }
          }
      }

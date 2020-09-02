@@ -70,21 +70,16 @@
                     $this->file = file_get_contents("php://input");
                     break;
                 default:
-                    $this->_response('Invalid Method', 405);
+                    self::_response('Invalid Method', 405);
                     break;
             }
         }
 
         public function processAPI() {
             if ((int)method_exists($this, $this->endpoint) > 0) {
-                return $this->_response($this->{$this->endpoint}($this->args, $this->file));
+                return self::_response($this->{$this->endpoint}($this->args, $this->file));
             }
-            return $this->_response("No Endpoint: $this->endpoint", 404);
-        }
-
-        private function _response($data, $status = 200) {
-            header("HTTP/1.1 " . $status . " " . $this->_requestStatus($status));
-            return json_encode($data);
+            return self::_response("No Endpoint: $this->endpoint", 400);
         }
 
         private function _cleanInputs($data) {
@@ -99,14 +94,27 @@
             return $clean_input;
         }
 
-        private function _requestStatus($code) {
+        static private function _response($data, $status = 200) {
+            header("HTTP/1.1 " . $status . " " . self::requestStatus($status));
+            return json_encode($data);
+        }
+
+        static function response($data, $status = 200) {
+            echo self::_response($data, $status);
+            exit();
+        }
+
+        static function requestStatus($code) {
             $status = array(  
                 200 => 'OK',
+                400 => 'Bad Request',   
+                401 => 'Unauthorized',   
                 404 => 'Not Found',   
+                410 => 'Gone',   
                 405 => 'Method Not Allowed',
                 500 => 'Internal Server Error',
             ); 
-            return ($status[$code])?$status[$code]:$status[500]; 
+            return (isset($status[$code]))?$status[$code]:$status[500]; 
         }
     }
 ?>

@@ -1,5 +1,5 @@
 <?php
-	require "connect.php";
-	$selectingDatabase = true;
-	$connect->selectDB();
+	require_once "connect.php";
+	DB::$selectingDatabase = true;
+	DB::$connect->selectDB();
 ?>

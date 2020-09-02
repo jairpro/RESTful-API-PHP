@@ -1,17 +1,17 @@
 <?php
 
 	if (empty($selectingDatabase)) {
-    	require "db_connection.php";
+    	require_once "db_connection.php";
     }
 
-	$result = mysql_query("SHOW TABLES LIKE 'item'");
-	$tableExists = mysql_num_rows($result);
+	DB::$connect->query("SHOW TABLES LIKE 'item'");
+	$tableExists = DB::$connect->numRows();
 
 	if($tableExists > 0) {
 		echo "'item' table already exists!<br/>";
 	
 	} else {
-		mysql_query(
+		DB::$connect->query(
 			'CREATE TABLE item ( id int(11) NOT NULL auto_increment, 
 				name varchar(20) NOT NULL,
 				price DECIMAL(10,2) NOT NULL,
@@ -21,11 +21,11 @@
 
 		echo "Item table created!<br/> Inserting two sample items";
 
-		mysql_query(
+		DB::$connect->query(
 			"INSERT INTO item (name, price) VALUES ( 'Item A', '5.99')"
 		);
 
-		mysql_query(
+		DB::$connect->query(
 			"INSERT INTO item (name, price) VALUES ( 'Item B', '12.99')"
 		);
 

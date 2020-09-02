@@ -1,18 +1,18 @@
 <?php
 	
 	if (empty($selectingDatabase)) {
-    	require "db_connection.php";
+    	require_once "db_connection.php";
 	}
 
-	$result = mysql_query("SHOW TABLES LIKE 'user'");
-	$tableExists = mysql_num_rows($result);
+	DB::$connect->query("SHOW TABLES LIKE 'user'");
+	$tableExists = DB::$connect->numRows();
 
 	if($tableExists > 0) {
 		echo "'user' table already exists!<br/>";
 	
 	} else {
 
-		mysql_query(
+		DB::$connect->query(
 			'CREATE TABLE user ( id int(11) NOT NULL auto_increment, 
 				username varchar(20) NOT NULL,
 				password varchar(40) NOT NULL,
@@ -28,7 +28,7 @@
 
 		$password = sha1($password);
 
-		mysql_query(
+		DB::$connect->query(
 			"INSERT INTO user (username, password) VALUES ( '" . $username . "', '" . $password . "')"
 		);
 

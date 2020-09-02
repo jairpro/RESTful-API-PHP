@@ -1,12 +1,16 @@
 <?php
 	
-	require 'mysql.php';
+	require_once 'mysql.php';
 
-	$username = "{username}";
-	$password = "{password}";
+	$username = "sambhav";
+	$password = "70dBcEMq0oyB0wVP";
 	$hostname = "localhost"; 
 	$db = "sambhav";
 
-	$connect = new MySQL($hostname, $username, $password, $db);
+	class DB {
+		static $selectingDatabase = false;
+		static $connect = null;
+	}
+	DB::$connect = new MySQL($hostname, $username, $password, $db);
 
 ?>

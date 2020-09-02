@@ -1,0 +1,16 @@
+#<IfModule mod_rewrite.c>
+#RewriteEngine On
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+##RewriteRule api/v1/(.*)$ api/v1/api.php?request=$1 [QSA,NC,L]
+#RewriteRule (.*)$ routes.php?request=$1 [QSA,NC,L]
+##RewriteRule api/(.*)$ routes.php?controller=$1 [QSA,NC,L]
+#</IfModule>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule api/v1/(.*)$ api/v1/api.php?request=$1 [QSA,NC,L]
+RewriteRule api/(.*)$ routes.php?request=$1 [QSA,NC,L]
+</IfModule>
